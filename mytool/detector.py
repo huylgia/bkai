@@ -34,7 +34,7 @@ class PaddleDetector():
         model_dir = self.det_dict['directory']
         algorithm = self.det_dict['algorithm']
         
-        modify = ['python script/PaddleOCR_2.4/tools/predict_det.py',
+        modify = ['python", "tools/predict_det.py',
                   f'--image_dir={image_dir}',
                   f'--det_algorithm={algorithm}',
                   f'--det_model_dir={model_dir}',

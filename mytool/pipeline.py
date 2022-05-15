@@ -20,8 +20,6 @@ class Predictor():
         self.writer = FormatWriter()
         
         os.makedirs(saved_result_dir, exist_ok = True)
-        os.makedirs(root_model_dir, exist_ok = True)
-        os.makedirs(self.croped_dir, exist_ok = True)
         
     def run(self, det_dicts, rec_dicts):
         #Detector
@@ -36,7 +34,7 @@ class Predictor():
             shutil.rmtree(missed_dir)
 
         #Recognitor
-        recer = RecPredictor(self.croped_dir, self.saved_result_dir, self.root_model_dir)
+        recer = RecPredictor(self.croped_dir, self.saved_result_dir, root_model_dir = self.root_model_dir)
         
         rec_dict_list = []
         for idx, rec_dict in enumerate(rec_dicts):

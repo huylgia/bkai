@@ -30,12 +30,11 @@ class StateGetter():
         info = torch.load(self.model_state)
         epoch = info['meta']['epoch']
 
-        score = round(info['mea']['hook_msgs']['best_score'], 4) * 100
         if problem_type == "det":
-            post_fix = f"{epoch}_best_hmean:{score}"
+            post_fix = f"{epoch}"
 
         if problem_type == "rec":
-            post_fix = f"{epoch}_best_acc:{score}"
+            post_fix = f"{epoch}"
             
         return post_fix
 
