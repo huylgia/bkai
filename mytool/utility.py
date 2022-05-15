@@ -44,7 +44,8 @@ def write_log(saved_dir, model_dict):
     log_file = os.path.join(saved_dir, model_name + ".json")
 
     log_object = json.dumps(model_dict, indent = 4)
-    f = open(log_file, "w").write(log_object)
+    f = open(log_file, "w")
+    f.write(log_object)
     f.close()
 
 def backup(model_dict, root_model_dir):
@@ -53,7 +54,7 @@ def backup(model_dict, root_model_dir):
     checkpoint_filename = os.path.join(model_dir, checkpoint_name)
 
     module = model_dict['module']
-    problem_type = model_dict['type']
+    problem_type = model_dict['problem_type']
 
     #Save model
     model_name = os.path.basename(model_dir)        

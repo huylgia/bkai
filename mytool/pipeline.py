@@ -10,12 +10,12 @@ from image_processor import ImageCroper
 from utility import rename_cropimage
 
 class Predictor():
-    def __init__(self, image_dir, saved_result_dir, root_model_dir):
+    def __init__(self, image_dir, saved_result_dir, root_model_dir = None):
         self.saved_result_dir = saved_result_dir
         self.root_model_dir = root_model_dir
         
         self.image_dir = image_dir
-        self.croped_dir = os.path.dirname(image_dir, "croped")
+        self.croped_dir = os.path.dirname(saved_result_dir, "croped")
         
         self.writer = FormatWriter()
         
@@ -25,16 +25,16 @@ class Predictor():
         
     def run(self, det_dicts, rec_dicts):
         #Detector
-        deter = DetPredictor(self.image_dir, self.saved_result_dir, self.root_model_dir)
+        deter = DetPredictor(self.image_dir, self.saved_result_dir, root_model_dir = self.root_model_dir)
         det_file = deter.detect(det_dicts[0])
-        missed_images = deter.process_det(self.writer, self.cropped_dir, det_file)
+        missed_images = deter.process_det(self.cropped_dir, det_file, self.writer)
         
         if missed_images:
-            missed_dir = os.path.join(self.saved_result_dir, "miss")
-            missed_det_file = process_missed_det(missed_images, missed_dir, det_dicts[1],
-                              self.root_model_dir, det_file)
-            deter.process_det(self.writer, self.cropped_dir, missed_det_file)
-            
+            missed_det_file, missed_dir = process_missed_det(missed_images, det_dicts[1],
+                               det_file, root_model_dir = self.root_model_dir)
+            deter.process_det(self.cropped_dir, missed_det_file, self.writer)
+            shutil.rmtree(missed_dir)
+
         #Recognitor
         recer = RecPredictor(self.croped_dir, self.saved_result_dir, self.root_model_dir)
         
