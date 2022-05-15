@@ -101,33 +101,36 @@ class FormatWriter():
             self.bk_dict[image_filename][idx] = None
     
     def write_paddle(self, annotation_file):
-      contents = ""
-      for image_filename, annotation_list in self.paddle_dict.items():
-        #remove None
-        annotation_list = [i for i in annotation_list if i]
+        contents = ""
+        for image_filename, annotation_list in self.paddle_dict.items():
+            #remove None
+            annotation_list = [i for i in annotation_list if i]
 
-        annotations = dict_list_to_text(annotation_list)
-        text = image_filename + "\t" + annotations + "\n"
-        contents+= text
+            annotations = dict_list_to_text(annotation_list)
+            text = image_filename + "\t" + annotations + "\n"
+            contents+= text
 
-      with open(annotation_file, "w") as f:
-        f.write(contents[:-1])
-        f.close()
+        with open(annotation_file, "w") as f:
+            f.write(contents[:-1])
+            f.close()
 
     def write_bk(self, annotation_dir):
-      os.makedirs(annotation_dir, exist_ok = True)
+        os.makedirs(annotation_dir, exist_ok = True)
 
-      for image_filename, annotation_list in self.bk_dict.items():
-        #remove None
-        annotation_list = [i for i in annotation_list if i]
+        for image_filename, annotation_list in self.bk_dict.items():
+            #remove None
+            annotation_list = [i for i in annotation_list if i]
 
-        image_name, _ = os.path.splitext(image_filename)
-        annotation_filename = "res_%s.txt"%image_name
-        annotation_file = os.path.join(annotation_dir, annotation_filename)
+            image_name, _ = os.path.splitext(image_filename)
+            annotation_filename = "res_%s.txt"%image_name
+            annotation_file = os.path.join(annotation_dir, annotation_filename)
 
-        if annotation_list:
-            annotation_list[-1] = annotation_list[-1].replace("\n","")
-        
-        with open(annotation_file, "w") as f:
-          f.writelines(annotation_list)
-          f.close()
+            if annotation_list:
+                annotation_list[-1] = annotation_list[-1].replace("\n","")
+
+            with open(annotation_file, "w") as f:
+                f.writelines(annotation_list)
+                f.close()
+        zip_file = os.path.join(os.path.dirname(annotation_dir), "prediction")
+        os.chdir(annotation_dir)
+        shutil.make_archive(zip_file, format='zip', root_dir='.')

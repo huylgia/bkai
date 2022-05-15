@@ -1,5 +1,4 @@
 import os, glob, shutil, json, cv2, imagesize
-from utility import backup, merge_two_file, dict_list_to_text, convert_to_bbox, process_point
 from format_processor import FormatReader
 from image_processor import ImageCroper
 from subprocess import call
@@ -60,7 +59,7 @@ class PaddleDetector():
                 self.predict(image_dir, output_file)
 
         if root_model_dir:
-            self.det_dict = backup(self.det_dict, root_model_dir)                        
+            self.det_dict = u.backup(self.det_dict, root_model_dir)                        
         u.write_log(saved_result_dir, self.det_dict)
         
         return output_file
@@ -107,9 +106,9 @@ class MMOCRDetector():
             self.predict(image_dir, output_file)
 
         if root_model_dir:
-            self.det_dict = backup(self.det_dict, root_model_dir)  
+            self.det_dict = u.backup(self.det_dict, root_model_dir)  
                               
-        write_log(saved_result_dir, self.det_dict)
+        u.write_log(saved_result_dir, self.det_dict)
         return output_file
 
 #======================================================================Predictor================================================

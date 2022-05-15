@@ -54,4 +54,4 @@ class Predictor():
         #Save result
         self.writer.write_paddle(self.saved_result_dir + "/Label.txt")
         self.writer.write_bk(self.saved_result_dir + "/bkai")
-    
+        
