@@ -2,6 +2,7 @@ import pickle, torch
 import numpy as np
 import glob, os, shutil
 import json, imagesize
+from subprocess import call
 from format_processor import FormatReader
 #=============================Backup model - For detector, recognitor=============================
 class StateGetter():
@@ -38,57 +39,92 @@ class StateGetter():
             
         return post_fix
 
-def backup(model_filename, saved_model_dir, config_filename = None, module = "paddle", problem_type = "det"):
-    module = module.lower()
-    problem_type = problem_type.lower()
+def write_log(saved_dir, model_dict):
+    model_name = os.path.basename(model_dict['directory'])
+    log_file = os.path.join(saved_dir, model_name + ".json")
+
+    log_object = json.dumps(model_dict, indent = 4)
+    f = open(log_file, "w").write(log_object)
+    f.close()
+
+def backup(model_dict, root_model_dir):
+    model_dir = model_dict['directory']
+    checkpoint_name = model_dict['checkpoint_name']
+    checkpoint_filename = os.path.join(model_dir, checkpoint_name)
+
+    module = model_dict['module']
+    problem_type = model_dict['type']
 
     #Save model
-    post_fix = ""
-    config_ext = ""
-    
+    model_name = os.path.basename(model_dir)        
+    saved_model_dir = os.path.join(root_model_dir, problem_type, model_name)
+    os.makedirs(saved_model_dir, exist_ok = True)
+
     if module == "paddle":
-        model_state = model_filename + ".states"
         config_ext = ".yml"
-        
-        if os.path.exists(model_state):
-            state_getter = StateGetter(model_state)
+        state = checkpoint_filename + ".states"
+        if os.path.exists(state):
+            #================================Model================================
+            #get info from state
+            state_getter = StateGetter(state)
             post_fix = state_getter.get_paddle_info(problem_type)
-            
-            #checkpoint
-            for model_file in glob.glob(model_filename + "*"):
-                model_name_ext = os.path.basename(model_file)
-                model_name, ext = os.path.splitext(model_name_ext)
-                
-                saved_model_file = os.path.join(saved_model_dir, f"{model_name}_{post_fix}{ext}")
-                shutil.copy(model_file, saved_model_file)
-                
+
+            #update config
+            saved_checkpoint_name = f"{model_name}_{post_fix}"
+            model_dict['checkpoint_name'] = saved_checkpoint_name
+
+            #backup checkpoint
+            model_exts = [".pdopt", ".pdparams", ".states"]
+            for ext in model_exts:
+                checkpoint_file = os.path.join(model_dir, checkpoint_name + ext) 
+                saved_checkpoint_file = os.path.join(saved_model_dir, saved_checkpoint_name + ext) 
+
+                shutil.copy(checkpoint_file, saved_checkpoint_file)
+
+            #===============================Other================================
+
     if module == "mmocr":
-        model_state = model_filename + ".pth"
         config_ext = ".py"
-        
-        if os.path.exists(model_state):
-            if "latest" in model_state:
-                state_getter = StateGetter(model_state)
+        state = checkpoint_filename + ".pth"        
+        if os.path.exists(state):
+            #================================Model================================
+            #get info from state
+            if "latest" == checkpoint_name:
+                state_getter = StateGetter(state)
                 post_fix = state_getter.get_mmocr_info(problem_type)
-            
-            #checkpoint
-            model_name_ext = os.path.basename(model_state)
-            model_name, ext = os.path.splitext(model_name_ext)
-            
-            saved_model_file = os.path.join(saved_model_dir, f"{model_name}_{post_fix}{ext}")
-            shutil.copy(model_file, saved_model_file)
-            
+
+            #update config
+            saved_checkpoint_name = f"{checkpoint_name}_{post_fix}"
+            model_dict['checkpoint_name'] = saved_checkpoint_name
+
+            #backup checkpoint
+            checkpoint_file = os.path.join(model_dir, checkpoint_name + ".pth")
+            saved_checkpoint_file = os.path.join(saved_model_dir, saved_checkpoint_name + ".pth")
+            shutil.copy(checkpoint_file, saved_checkpoint_file)
+
     #config
-    if config_filename and config_ext:
-        config_name = os.path.basename(config_filename)
-        config_file = config_filename + config_ext
-        saved_config_file = os.path.join(saved_model_dir, f"{config_name}_{post_fix}{config_ext}")
+    if "config_name" in model_dict.keys():
+        config_name = model_dict['config_name']
+        saved_config_name = f"{config_name}_{post_fix}"
+        model_dict['config_name'] = saved_config_name
+
+        #backup config
+        config_file = os.path.join(model_dir, config_name + config_ext)
+        saved_config_file = os.path.join(saved_model_dir, saved_config_name + config_ext)
+
         shutil.copy(config_file, saved_config_file)
         
-    return post_fix
+    return model_dict
     
 
 #==================================Some other function===========================
+def bash_script(command):
+    with open("script.sh", "w") as f:
+            f.write(command)
+            f.close()
+    call(["bash", "script.sh"])
+    os.remove("script.sh")
+
 def process_point(point, h, w):
     x, y = point
 
