@@ -30,7 +30,7 @@ class Predictor():
         if missed_images:
             missed_det_file, missed_dir = process_missed_det(missed_images, det_dicts[1],
                                                              det_file, root_model_dir = self.root_model_dir)
-            deter.process_det(self.cropped_dir, missed_det_file, writer = self.writer)
+            deter.process_det(self.croped_dir, missed_det_file, writer = self.writer)
             shutil.rmtree(missed_dir)
 
         #Recognitor
@@ -52,6 +52,6 @@ class Predictor():
         rename_cropimage(rec_file, self.croped_dir)
         
         #Save result
-        self.writer.write_paddle(self.saved_result_dir + "/Label.txt")
-        self.writer.write_bk(self.saved_result_dir + "/bkai")
+        # self.writer.write_paddle(self.saved_result_dir + "/Label.txt")
+        self.writer.write_bk(self.image_dir, self.saved_result_dir + "/bkai")
         

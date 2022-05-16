@@ -142,7 +142,7 @@ class RecPredictor():
             original_image_filename = "_".join(croped_image_name.split("_")[:-1]) + extension
             
             if writer:
-                writer.record_paddle(original_image_filename, idx = idx, transcription = transcription)
+                # writer.record_paddle(original_image_filename, idx = idx, transcription = transcription)
                 writer.record_bk(original_image_filename, idx = idx, transcription = transcription)
 
         return lower_confidence_images

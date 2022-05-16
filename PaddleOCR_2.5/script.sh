@@ -1,0 +1,1 @@
+python tools/infer_det.py -c /content/drive/MyDrive/Busmap/OCR/SceneText/source_code/model/det/pse_train-vin2000_eval-bk500_cosine_1/config.yml -o Global.infer_img=missed_images Global.checkpoints=/content/drive/MyDrive/Busmap/OCR/SceneText/source_code/model/det/pse_train-vin2000_eval-bk500_cosine_1/best_accuracy Global.save_res_path=missed_images/det.txt Global.use_gpu=True

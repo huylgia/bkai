@@ -67,6 +67,16 @@ def dict_list_to_text(dic_list):
 
       return text
 
+def init_bk(image_dir, annotation_dir):
+    image_name_ext_list = os.listdir(image_dir)
+    image_name_list = [os.path.splitext(image_name_ext)[0] for image_name_ext in image_name_ext_list]
+    anno_name_ext_list = ["res_%s.txt"%image_name for image_name in image_name_list]
+    for anno_name_ext in anno_name_ext_list:
+        anno_file = os.path.join(annotation_dir, anno_name_ext) 
+        with open(anno_file, "w") as f:
+            f.write("")
+            f.close()
+
 class FormatWriter():
     def __init__(self):
       self.paddle_dict = {}
@@ -114,9 +124,10 @@ class FormatWriter():
             f.write(contents[:-1])
             f.close()
 
-    def write_bk(self, annotation_dir):
+    def write_bk(self, image_dir, annotation_dir):
         os.makedirs(annotation_dir, exist_ok = True)
-
+        init_bk(image_dir, annotation_dir)
+        
         for image_filename, annotation_list in self.bk_dict.items():
             #remove None
             annotation_list = [i for i in annotation_list if i]

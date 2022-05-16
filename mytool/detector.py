@@ -26,10 +26,11 @@ class PaddleDetector():
         command = " ".join(modify)
 
         #Run script
-        os.chdir("../PaddleOCR_2.4")
+        os.chdir("../PaddleOCR_2.5")
         u.bash_script(command)
 
     def infer(self, image_dir, output_dir, use_gpu = True):
+        os.makedirs(output_dir, exist_ok = True)
         model_dir = self.det_dict['directory']
         algorithm = self.det_dict['algorithm']
         
@@ -135,12 +136,13 @@ class DetPredictor():
         reader = FormatReader(output_file)
         dictionary = reader.read_det(self.image_dir)
 
-        missed_images = []
+        image_list = glob.glob(self.image_dir + "/*")
+        predict_image_list = []
         for image_path, annotation_list in dictionary.items():
             if annotation_list == None:
-                missed_images.append(image_path)
                 continue
-            
+            predict_image_list.append(image_path)
+
             for idx, anno in enumerate(annotation_list):
                 #process polygon
                 polygon = anno["points"]
@@ -162,15 +164,16 @@ class DetPredictor():
                     anno["points"] = [u.process_point(point, height, width) for point in polygon]
 
                 if writer:
-                    writer.record_paddle(image_filename, anno)
+                    # writer.record_paddle(image_filename, anno)
                     writer.record_bk(image_filename, anno["points"])
-    
+        missed_images = list(set(image_list) - set(predict_image_list))
+        
         return missed_images
         
 def process_missed_det(missed_images, missed_det_dict,
                        output_file, root_model_dir = None):                        
     #Move missed_image to dir
-    missed_dir = "missed_images"
+    missed_dir = "/content/bkai/missed_images"
     os.makedirs(missed_dir, exist_ok = True)
     for image_path in missed_images:
         shutil.copy(image_path, missed_dir)
