@@ -70,7 +70,7 @@ class MMOCRDetector():
         self.det_dict = det_dict
 
     def predict(self, image_dir, output_file):
-        os.chdir("../mmocr")
+        os.chdir("/content/bkai/mmocr")
         from mmocr.utils.ocr import MMOCR
         
         model_dir = self.det_dict['directory']
