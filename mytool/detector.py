@@ -26,7 +26,7 @@ class PaddleDetector():
         command = " ".join(modify)
 
         #Run script
-        os.chdir("../PaddleOCR_2.5")
+        os.chdir("/content/bkai/PaddleOCR_2.5")
         u.bash_script(command)
 
     def infer(self, image_dir, output_dir, use_gpu = True):
@@ -43,7 +43,7 @@ class PaddleDetector():
         command = " ".join(modify)
         
         #Run script
-        os.chdir("../PaddleOCR_2.4")
+        os.chdir("/content/bkai/PaddleOCR_2.4")
         u.bash_script(command)
 
     def call(self, image_dir, saved_result_dir, root_model_dir = None, output_name = "det.txt"):
