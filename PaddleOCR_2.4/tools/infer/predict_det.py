@@ -298,7 +298,7 @@ if __name__ == "__main__":
         if count > 0:
             total_time += elapse
         ##
-        print('count:',count)
+
         #Huy code
         if(len(dt_boxes) == 0):
               missed_images.append(image_file)

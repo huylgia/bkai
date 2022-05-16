@@ -60,6 +60,7 @@ def backup(model_dict, root_model_dir):
     saved_model_dir = os.path.join(root_model_dir, problem_type, model_name)
     os.makedirs(saved_model_dir, exist_ok = True)
 
+    post_fix = ""
     if module == "paddle":
         config_ext = ".yml"
         state = checkpoint_filename + ".states"
@@ -123,7 +124,7 @@ def bash_script(command):
             f.write(command)
             f.close()
     call(["bash", "script.sh"])
-    os.remove("script.sh")
+    # os.remove("script.sh")
 
 def process_point(point, h, w):
     x, y = point

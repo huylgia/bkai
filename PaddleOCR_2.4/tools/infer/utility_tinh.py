@@ -22,9 +22,11 @@ from PIL import Image, ImageDraw, ImageFont
 import math
 from paddle import inference
 
-def str2bool(v):
-      return v.lower() in ("true", "t", "1")
+
 def parse_args():
+    def str2bool(v):
+        return v.lower() in ("true", "t", "1")
+
     parser = argparse.ArgumentParser()
     # params for prediction engine
     parser.add_argument("--use_gpu", type=str2bool, default=True)
@@ -39,6 +41,9 @@ def parse_args():
     parser.add_argument("--det_model_dir", type=str)
     parser.add_argument("--det_limit_side_len", type=float, default=960)
     parser.add_argument("--det_limit_type", type=str, default='max')
+    parser.add_argument(
+        "--draw_img_save_dir", type=str, default="./inference_results")
+
 
     # DB parmas
     parser.add_argument("--det_db_thresh", type=float, default=0.3)
@@ -70,16 +75,8 @@ def parse_args():
     parser.add_argument(
         "--vis_font_path", type=str, default="./doc/simfang.ttf")
     parser.add_argument("--drop_score", type=float, default=0.5)
-    
-    #
-    parser.add_argument(
-        "--draw_img_save_dir", type=str, default="./inference_results")
-    parser.add_argument("--is_visualize", type=str2bool, default=True)
-    parser.add_argument("--save_crop_res", type=str2bool, default=False)
-    parser.add_argument("--crop_res_save_dir", type=str, default="./output")
-    parser.add_argument("--benchmark", type=str2bool, default=False)
+
     # params for text classifier
-    parser.add_argument("--warmup", type=str2bool, default=False)
     parser.add_argument("--use_angle_cls", type=str2bool, default=False)
     parser.add_argument("--cls_model_dir", type=str)
     parser.add_argument("--cls_image_shape", type=str, default="3, 48, 192")
@@ -395,7 +392,6 @@ def draw_boxes(image, boxes, scores=None, drop_score=0.5):
     return image
 
 
-   
 #if __name__ == '__main__':
 #    test_img = "./doc/test_v2"
 #    predict_txt = "./doc/predict.txt"
@@ -416,6 +412,7 @@ def draw_boxes(image, boxes, scores=None, drop_score=0.5):
 #    new_img = draw_ocr(image, boxes, txts, scores)
 #
 #    cv2.imwrite(img_name, new_img)
+
 
 if __name__ == '__main__':
     pass

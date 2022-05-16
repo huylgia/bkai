@@ -33,7 +33,7 @@ class PaddleDetector():
         model_dir = self.det_dict['directory']
         algorithm = self.det_dict['algorithm']
         
-        modify = ['python", "tools/predict_det.py',
+        modify = ['python', 'tools/infer/predict_det_tinh.py',
                   f'--image_dir={image_dir}',
                   f'--det_algorithm={algorithm}',
                   f'--det_model_dir={model_dir}',
