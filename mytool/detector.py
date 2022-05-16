@@ -170,10 +170,9 @@ class DetPredictor():
         
         return missed_images
         
-def process_missed_det(missed_images, missed_det_dict,
+def process_missed_det(missed_images, missed_dir, missed_det_dict,
                        output_file, root_model_dir = None):                        
     #Move missed_image to dir
-    missed_dir = "/content/bkai/missed_images"
     os.makedirs(missed_dir, exist_ok = True)
     for image_path in missed_images:
         shutil.copy(image_path, missed_dir)
@@ -182,4 +181,4 @@ def process_missed_det(missed_images, missed_det_dict,
     missed_output_file = deter.detect(missed_det_dict)
     u.merge_two_file(output_file,  missed_output_file, output_file)
 
-    return missed_output_file, missed_dir
+    return missed_output_file

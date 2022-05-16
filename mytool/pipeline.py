@@ -28,8 +28,9 @@ class Predictor():
         missed_images = deter.process_det(self.croped_dir, det_file, writer = self.writer)
         
         if missed_images:
-            missed_det_file, missed_dir = process_missed_det(missed_images, det_dicts[1],
-                                                             det_file, root_model_dir = self.root_model_dir)
+            missed_dir = os.path.join(self.saved_result_dir, "missed_images")
+            missed_det_file = process_missed_det(missed_images, missed_dir, det_dicts[1],
+                                                 det_file, root_model_dir = self.root_model_dir)
             deter.process_det(self.croped_dir, missed_det_file, writer = self.writer)
             shutil.rmtree(missed_dir)
 
