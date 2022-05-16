@@ -8,7 +8,7 @@ class ImageCroper():
         self.image = cv2.imread(image_path)
         self.height, self.width, _ = self.image.shape
 
-    def expand(self, polygon, w_rate = 1/50, h_rate = 1/50):        
+    def expand(self, polygon, w_rate = 0, h_rate = 1/100):        
         #padding
         rect = cv2.boundingRect(polygon)
         _,__,pw,ph = rect
