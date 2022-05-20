@@ -21,7 +21,7 @@ class PaddleRecognitor():
         command = " ".join(modify)
         
         #Run script
-        os.chdir("/content/bkai/PaddleOCR_2.4")
+        os.chdir("/content/bkai/PaddleOCR_2.5")
         u.bash_script(command)        
 
     def infer(self, image_dir, output_file, use_gpu = True):
