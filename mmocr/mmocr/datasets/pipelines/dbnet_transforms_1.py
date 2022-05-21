@@ -79,11 +79,8 @@ class ImgAug:
             results['flip'] = 'unknown'  # it's unknown
             results['flip_direction'] = 'unknown'  # it's unknown
             target_shape = results['img_shape']
-            flag = self.may_augment_annotation(aug, shape, target_shape, results)
 
-            if flag == None:
-              results['img'] = image
-              results['img_shape'] = shape
+            self.may_augment_annotation(aug, shape, target_shape, results)
 
         return results
 
@@ -95,10 +92,7 @@ class ImgAug:
         for key in results['mask_fields']:
             if self.clip_invalid_polys:
                 masks = self.may_augment_poly(aug, shape, results[key])
-                if masks:
-                  results[key] = PolygonMasks(masks, *target_shape[:2])
-                else:
-                  return None
+                results[key] = PolygonMasks(masks, *target_shape[:2])
             else:
                 masks = self.may_augment_poly_legacy(aug, shape, results[key])
                 if len(masks) > 0:
@@ -141,15 +135,12 @@ class ImgAug:
                                     shape=img_shape)])[0].clip_out_of_image()
 
         new_polys = []
-        try:
-          for idx, poly in enumerate(imgaug_polys.polygons):
-              new_poly = []
-              for point in poly:
-                  new_poly.append(np.array(point, dtype=np.float32))
-              new_poly = np.array(new_poly, dtype=np.float32).flatten()
-              new_polys.append([new_poly])
-        except:
-          pass
+        for poly in imgaug_polys.polygons:
+            new_poly = []
+            for point in poly:
+                new_poly.append(np.array(point, dtype=np.float32))
+            new_poly = np.array(new_poly, dtype=np.float32).flatten()
+            new_polys.append([new_poly])
 
         return new_polys
 
