@@ -22,14 +22,22 @@ def merge_anno(file1, file2):
             data2 = fp.read()
             fp.close()
 
-        if (data1[-1] == "\n") and (data2[-1] == "\n"):
-            data = data1 + data2[:-1]
+        if not data1:
+            print(file1)
+            data = data2
+        else:
+            if not data2:
+                print(file2)
+                data = data1
+            else:
+                if (data1[-1] == "\n") and (data2[-1] == "\n"):
+                    data = data1 + data2[:-1]
+                
+                if (data1[-1] == "\n") and (data2[-1] != "\n"):
+                    data = data1 + data2
 
-        if (data1[-1] == "\n") and (data2[-1] != "\n"):
-            data = data1 + data2
-
-        if (data1[-1] != "\n") and (data2[-1] != "\n"):
-            data = data1 + "\n" + data2
+                if (data1[-1] != "\n") and (data2[-1] != "\n"):
+                    data = data1 + "\n" + data2
 
         with open(file1, "w") as fp:
             fp.write(data)

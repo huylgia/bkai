@@ -122,7 +122,7 @@ class RecPredictor():
             
         return rec_file
         
-    def process_rec(self, output_file, threshold = 0.8, writer = None):
+    def process_rec(self, output_file, threshold = 0.9, writer = None):
         reader = FormatReader(output_file)
         dictionary = reader.read_recog(self.image_dir)
         
@@ -147,6 +147,15 @@ class RecPredictor():
 
         return lower_confidence_images
 
+def AdjustLowerUpCase(label):
+    if not label.isupper():
+        if label[0].isupper():
+            label = label[0] + label[1:].lower()
+        if label[0].islower():
+            label = label.lower()
+
+    return label
+    
 def esemble_rec(rec_file, rec_dict_list):
     dictionary = copy.deepcopy(rec_dict_list[0])
     for image_path, info in dictionary.items():
