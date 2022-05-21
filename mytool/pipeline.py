@@ -41,7 +41,7 @@ class Predictor():
         
         rec_dict_list = []
         for idx, rec_dict in enumerate(rec_dicts):
-            rec_file = recer.recognize(rec_dict, f"rec_{idx}.txt")
+            rec_file = recer.recognize(rec_dict, f"rec_merge_{idx}.txt")
             
             reader = FormatReader(rec_file)
             dictionary = reader.read_recog(self.croped_dir)

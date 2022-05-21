@@ -5,6 +5,9 @@ import json, imagesize
 from subprocess import call
 from format_processor import FormatReader
 import cv2
+import copy
+from shapely.geometry import Polygon, Point
+
 #=============================Backup model - For detector, recognitor=============================
 class StateGetter():
     def __init__(self, model_state):
@@ -149,7 +152,8 @@ def dict_list_to_text(dic_list):
 
       return text
 
-def save_polygon(image, polygon):
+#Detector - process det
+def plot_polygon(image, polygon):
     pts = np.array(polygon, np.int32)
     
     pts = pts.reshape((-1, 1, 2))
@@ -170,6 +174,62 @@ def save_polygon(image, polygon):
     
     return image
 
+def ios(poly1, poly2):
+    poly1 = np.float32(poly1)
+    poly1 = np.reshape(poly1, (-1,2))
+
+    poly2 = np.float32(poly2)
+    poly2 = np.reshape(poly2, (-1,2))
+
+    polygon1 = Polygon(poly1)
+    polygon2 = Polygon(poly2)
+
+    flag = True
+    max_area = max(polygon1.area, polygon2.area)
+    if polygon1.area == max_area:
+        for point in poly2:
+            point = Point(point)
+            if not point.within(polygon1):
+                flag = False
+                break
+                
+    if polygon2.area == max_area:
+        for point in poly1:
+            point = Point(point)
+            if not point.within(polygon2):
+                flag = False
+                break
+
+    if flag == False:
+        intersect = polygon1.intersection(polygon2).area
+        smaller = min(polygon1.area, polygon2.area)
+
+        ios = intersect / smaller
+
+        return ios
+    else:
+        return -1
+
+
+def merge_box(poly1, poly2):    
+    poly1 = np.float32(poly1)
+    poly1 = np.reshape(poly1, (-1,2)).tolist()
+
+    poly2 = np.float32(poly2)
+    poly2 = np.reshape(poly2, (-1,2)).tolist()
+
+    poly12 = copy.deepcopy(poly1)
+    poly12.extend(poly2)
+    xmin, ymin = np.min(poly12, axis = 0)
+    xmax, ymax = np.max(poly12, axis = 0)
+
+    bbox = [[xmin, ymin], [xmax, ymin],
+            [xmax, ymax], [xmin, ymax]]
+
+    return bbox
+
+
+#Detector - mmocr
 def convert_to_bbox(polygon, image_path):
     width, height = imagesize.get(image_path)
 

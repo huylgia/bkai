@@ -98,7 +98,7 @@ class MMOCRDetector():
                 if score < 0.7:
                     continue
                 polygon = np.reshape(polygon, (-1,2)).tolist()
-                image = u.save_polygon(image, polygon)
+                image = u.plot_polygon(image, polygon)
 
                 dic = {}
                 dic['transcription'] = ""
@@ -152,6 +152,9 @@ class DetPredictor():
         reader = FormatReader(output_file)
         dictionary = reader.read_det(self.image_dir)
 
+        saved_vis = os.path.join(self.saved_result_dir, "det_merge_results")
+        os.makedirs(saved_vis, exist_ok = True)
+
         image_list = glob.glob(self.image_dir + "/*")
         predict_image_list = []
         for image_path, annotation_list in dictionary.items():
@@ -159,29 +162,54 @@ class DetPredictor():
                 continue
             predict_image_list.append(image_path)
 
-            for idx, anno in enumerate(annotation_list):
+            image = cv2.imread(image_path)
+
+            temp_idxs = []
+            for idx1, anno1 in enumerate(annotation_list):
+                if idx1 in temp_idxs:
+                    continue
                 #process polygon
-                polygon = anno["points"]
+                poly1 = anno1["points"]
+                for idx2, anno2 in enumerate(annotation_list[idx1+1:]):
+                    poly2 = anno2["points"]
+
+                    try:
+                        ios = u.ios(poly1, poly2)
+                    except:
+                        continue
+
+                    if ios < 0:
+                        temp_idxs.append(idx1+1+idx2)
+                    else:
+                        if ios > 0.2:
+                            poly1 = u.merge_box(poly1, poly2)
+                            temp_idxs.append(idx1+1+idx2)
+
+                image = u.plot_polygon(image, poly1)
 
                 #crop image
                 image_filename = os.path.basename(image_path)
                 image_name, extension = os.path.splitext(image_filename)
                 
-                crop_image_filename = image_name + f"_{idx}{extension}"
+                crop_image_filename = image_name + f"_{idx1}{extension}"
                 crop_image_file = os.path.join(croped_dir, crop_image_filename)
 
                 if not os.path.exists(crop_image_file):
                     croper = ImageCroper(image_path)
-                    croped_image = croper.crop_rectangle(polygon)
+                    croped_image = croper.crop_rectangle(poly1)
                     cv2.imwrite(crop_image_file, croped_image)
-    
+
                     #store info
                     width, height = imagesize.get(image_path)
-                    anno["points"] = [u.process_point(point, height, width) for point in polygon]
+                    anno1["points"] = [u.process_point(point, height, width) for point in poly1]
 
                 if writer:
                     # writer.record_paddle(image_filename, anno)
-                    writer.record_bk(image_filename, anno["points"])
+                    writer.record_bk(image_filename, anno1["points"])
+            
+            saved_image_path = os.path.join(saved_vis, image_filename)
+            cv2.imwrite(saved_image_path, image)
+
         missed_images = list(set(image_list) - set(predict_image_list))
         
         return missed_images
