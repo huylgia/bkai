@@ -1,4 +1,5 @@
 import os, glob, shutil, json, cv2, imagesize
+import numpy as np
 from format_processor import FormatReader
 from image_processor import ImageCroper
 from subprocess import call
@@ -69,22 +70,35 @@ class MMOCRDetector():
     def __init__(self, det_dict):
         self.det_dict = det_dict
 
-    def predict(self, image_dir, output_file):
+    def predict(self, image_dir, output_file, saved_result_dir = None):
         os.chdir("/content/bkai/mmocr")
         from mmocr.utils.ocr import MMOCR
         
         model_dir = self.det_dict['directory']
         checkpoint_file =  os.path.join(model_dir, self.det_dict['checkpoint_name'] + ".pth")
-        config_file = self.det_dict['config_filename'] + ".py"
+        config_file = os.path.join(model_dir, self.det_dict['config_name'] + ".py")
+
+        det_results = os.path.join(saved_result_dir, "det_results")
+        os.makedirs(det_results, exist_ok = True)
         
         contents = ""
         ocr = MMOCR(recog=None, det_config=config_file, det_ckpt=checkpoint_file)
         for image_path in glob.glob(image_dir + "/*"):
             results = ocr.readtext(image_path)
 
+            image_name_ext = os.path.basename(image_path)
+            saved_image_path = os.path.join(det_results, image_name_ext)
+
             dic_list = []
+            image = cv2.imread(image_path)
             for polygon in results[0]['boundary_result']:
-                polygon = u.convert_to_bbox(polygon, image_path)
+                polygon = polygon[:-1]
+                score = polygon[-1]
+
+                if score < 0.7:
+                    continue
+                polygon = np.reshape(polygon, (-1,2)).tolist()
+                image = u.save_polygon(image, polygon)
 
                 dic = {}
                 dic['transcription'] = ""
@@ -93,8 +107,10 @@ class MMOCRDetector():
 
                 dic_list.append(dic)
             
+            cv2.imwrite(saved_image_path, image)
             text = u.dict_list_to_text(dic_list)
             contents += image_path + "\t" + text + "\n"
+
                 
         with open(output_file, "w") as f:
             f.write(contents[:-1])
@@ -104,7 +120,7 @@ class MMOCRDetector():
         output_file = os.path.join(saved_result_dir, output_name)
 
         if not os.path.exists(output_file):
-            self.predict(image_dir, output_file)
+            self.predict(image_dir, output_file, saved_result_dir)
 
         if root_model_dir:
             self.det_dict = u.backup(self.det_dict, root_model_dir)  

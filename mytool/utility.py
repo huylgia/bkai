@@ -4,6 +4,7 @@ import glob, os, shutil
 import json, imagesize
 from subprocess import call
 from format_processor import FormatReader
+import cv2
 #=============================Backup model - For detector, recognitor=============================
 class StateGetter():
     def __init__(self, model_state):
@@ -148,6 +149,27 @@ def dict_list_to_text(dic_list):
 
       return text
 
+def save_polygon(image, polygon):
+    pts = np.array(polygon, np.int32)
+    
+    pts = pts.reshape((-1, 1, 2))
+    
+    isClosed = True
+    
+    # Blue color in BGR
+    color = (255, 0, 0)
+    
+    # Line thickness of 2 px
+    thickness = 2
+    
+    # Using cv2.polylines() method
+    # Draw a Blue polygon with 
+    # thickness of 1 px
+    image = cv2.polylines(image, [pts], 
+                        isClosed, color, thickness)
+    
+    return image
+
 def convert_to_bbox(polygon, image_path):
     width, height = imagesize.get(image_path)
 
@@ -183,16 +205,23 @@ def merge_two_file(file1, file2, mer_file):
         with open(mer_file, 'w') as fp:
             fp.write(data) 
             
-def rename_cropimage(output_file, croped_dir):
-    reader = FormatReader(output_file)
-    dictionary = reader.read_recog(croped_dir)
-    
-    for image_file, annotation in dictionary.items():
+def rename_cropimage(rec_dict_list, croped_dir):
+    for image_file, annotation in rec_dict_list[0].items():
         if annotation["label"] == "":
-          continue
-        annotation["label"] = annotation["label"].replace("/","-")
-        image_name = os.path.basename(image_file)
-        new_image_name = annotation["label"] + "_" + image_name
-        
+            continue
+
+        label1 = annotation["label"].replace("/","-")
+        post_fix = [label1]
+        for dictionary in rec_dict_list[1:]:
+            if dictionary[image_file]["label"] == "":
+                continue
+            label2 = dictionary[image_file]["label"].replace("/","-")
+            post_fix.append(label2)
+        post_fix = "_".join(post_fix)
+
+        image_name_ext = os.path.basename(image_file)
+        image_name, ext = os.path.splitext(image_name_ext)
+
+        new_image_name = image_name + "_" + post_fix + ext
         new_image_file = os.path.join(croped_dir, new_image_name)
         os.rename(image_file, new_image_file)

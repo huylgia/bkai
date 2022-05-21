@@ -16,6 +16,8 @@ class Predictor():
         
         self.image_dir = image_dir
         self.croped_dir = os.path.join(saved_result_dir, "croped")
+        if os.path.exists(self.croped_dir):
+            shutil.rmtree(self.croped_dir)
         
         self.writer = FormatWriter()
         
@@ -50,7 +52,7 @@ class Predictor():
         esemble_rec(rec_file, rec_dict_list)
         
         lower_confidence_images = recer.process_rec(rec_file, writer = self.writer)
-        rename_cropimage(rec_file, self.croped_dir)
+        rename_cropimage(rec_dict_list, self.croped_dir)
         
         #Save result
         # self.writer.write_paddle(self.saved_result_dir + "/Label.txt")
