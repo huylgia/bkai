@@ -135,7 +135,7 @@ class FormatWriter():
             image_name, _ = os.path.splitext(image_filename)
             annotation_filename = "res_%s.txt"%image_name
             annotation_file = os.path.join(annotation_dir, annotation_filename)
-
+            
             if annotation_list:
                 annotation_list[-1] = annotation_list[-1].replace("\n","")
 

@@ -122,7 +122,7 @@ class RecPredictor():
             
         return rec_file
         
-    def process_rec(self, output_file, threshold = 0.9, writer = None):
+    def process_rec(self, output_file, threshold = 0.79, writer = None):
         reader = FormatReader(output_file)
         dictionary = reader.read_recog(self.image_dir)
         
@@ -160,7 +160,7 @@ def esemble_rec(rec_file, rec_dict_list):
     dictionary = copy.deepcopy(rec_dict_list[0])
     for image_path, info in dictionary.items():
         for rec_dict in rec_dict_list[1:]:
-            if rec_dict[image_path]['score'] > info['score']:
+            if rec_dict[image_path]['score']*0.4 > info['score']*0.6:
                 dictionary[image_path] = rec_dict[image_path]
                 print(info, rec_dict[image_path])
                     

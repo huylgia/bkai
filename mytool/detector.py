@@ -165,9 +165,11 @@ class DetPredictor():
             image = cv2.imread(image_path)
 
             temp_idxs = []
+            count = 0
             for idx1, anno1 in enumerate(annotation_list):
                 if idx1 in temp_idxs:
                     continue
+
                 #process polygon
                 poly1 = anno1["points"]
                 for idx2, anno2 in enumerate(annotation_list[idx1+1:]):
@@ -181,7 +183,7 @@ class DetPredictor():
                     if ios < 0:
                         temp_idxs.append(idx1+1+idx2)
                     else:
-                        if ios > 0.2:
+                        if ios > 0.35:
                             poly1 = u.merge_box(poly1, poly2)
                             temp_idxs.append(idx1+1+idx2)
 
@@ -191,17 +193,18 @@ class DetPredictor():
                 image_filename = os.path.basename(image_path)
                 image_name, extension = os.path.splitext(image_filename)
                 
-                crop_image_filename = image_name + f"_{idx1}{extension}"
+                crop_image_filename = image_name + f"_{count}{extension}"
                 crop_image_file = os.path.join(croped_dir, crop_image_filename)
 
-                if not os.path.exists(crop_image_file):
-                    croper = ImageCroper(image_path)
-                    croped_image = croper.crop_rectangle(poly1)
-                    cv2.imwrite(crop_image_file, croped_image)
+                croper = ImageCroper(image_path)
+                croped_image = croper.crop_rectangle(poly1)
+                cv2.imwrite(crop_image_file, croped_image)
 
-                    #store info
-                    width, height = imagesize.get(image_path)
-                    anno1["points"] = [u.process_point(point, height, width) for point in poly1]
+                #store info
+                width, height = imagesize.get(image_path)
+                anno1["points"] = [u.process_point(point, height, width) for point in poly1]
+                
+                count += 1
 
                 if writer:
                     # writer.record_paddle(image_filename, anno)

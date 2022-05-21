@@ -71,6 +71,8 @@ class DetEsembler():
         os.chdir(esemble_saved_bkai)
         shutil.make_archive(zip_file, format='zip', root_dir='.')
 
+        return esemble_saved_result_dir
+
     def greater_result(self):
         #create esemble saved_result_dir
         ids = [sub_dir.split("_")[-1] for sub_dir in self.saved_result_dirs]
@@ -92,3 +94,5 @@ class DetEsembler():
         zip_file = os.path.join(esemble_saved_result_dir, "prediction")
         os.chdir(esemble_saved_bkai)
         shutil.make_archive(zip_file, format='zip', root_dir='.')
+
+        return esemble_saved_result_dir
