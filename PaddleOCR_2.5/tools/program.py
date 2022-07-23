@@ -539,7 +539,7 @@ def preprocess(is_train=False):
         os.makedirs(save_model_dir, exist_ok=True)
         with open(os.path.join(save_model_dir, 'config.yml'), 'w') as f:
             yaml.dump(
-                dict(config), f, default_flow_style=False, sort_keys=False)
+                dict(config), f, default_flow_style=False)
         log_file = '{}/train.log'.format(save_model_dir)
     else:
         log_file = None
