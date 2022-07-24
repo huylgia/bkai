@@ -92,7 +92,8 @@ def init_args():
     parser.add_argument(
         "--vis_font_path", type=str, default="./doc/fonts/simfang.ttf")
     parser.add_argument("--drop_score", type=float, default=0.5)
-
+    parser.add_argument("--rec_saved_path", type=str, default="")
+    
     # params for e2e
     parser.add_argument("--e2e_algorithm", type=str, default='PGNet')
     parser.add_argument("--e2e_model_dir", type=str)
