@@ -398,6 +398,17 @@ class TextRecognizer(object):
                 self.autolog.times.end(stamp=True)
         return rec_res, time.time() - st
 
+def write_result(valid_image_file_list, rec_res, saved_file):
+    text = ""
+    for index, image_file in enumerate(valid_image_file_list):
+        image_filename = os.path.basename(image_file)
+        label, score = rec_res[index]
+        text += "{}\t{}\t{}\n".format(image_filename,label,score)
+    text = text[:-1]
+
+    with open(saved_file, "w") as f:
+        f.write(text)
+        f.close()
 
 def main(args):
     image_file_list = get_image_file_list(args.image_dir)
@@ -409,6 +420,8 @@ def main(args):
         "In PP-OCRv3, rec_image_shape parameter defaults to '3, 48, 320', "
         "if you are using recognition model with PP-OCRv2 or an older version, please set --rec_image_shape='3,32,320"
     )
+
+    saved_file = args.rec_saved_path
     # warmup 2 times
     if args.warmup:
         img = np.random.uniform(0, 255, [48, 320, 3]).astype(np.uint8)
@@ -436,7 +449,7 @@ def main(args):
                                                rec_res[ino]))
     if args.benchmark:
         text_recognizer.autolog.report()
-
+    write_result(valid_image_file_list, rec_res, saved_file)
 
 if __name__ == "__main__":
     main(utility.parse_args())
